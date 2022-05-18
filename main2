@@ -1,0 +1,143 @@
+#include<GL/glut.h>
+#include<bits/stdc++.h>
+
+using namespace std;
+
+GLint xc,yc,xr,yr;
+
+#define w 700
+#define h 700
+
+void setpixel(GLint x, GLint y)
+{
+    glColor3f(179,200,200);
+    glBegin(GL_POINTS);
+        glVertex2f(x,y);
+    glEnd();
+    glFlush();
+}
+
+
+void init()
+{
+    glClearColor(1.0,0.0,1.0,0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(-(w/2),w/2,-h/2,h/2);
+}
+
+void choice()
+{
+    glPointSize(3.0);
+    for(int i=-w/2; i<w/2;i++)
+    {
+
+        setpixel(0,i);
+        setpixel(i,0);
+    }
+}
+
+class Circle
+{
+    public:
+
+        void drawCircle(int xc, int yc, int x, int y)
+        {
+                    setpixel(xc+x,yc+y);
+                    setpixel(xc-x,yc+y);
+                    setpixel(xc+x,yc-y);
+                    setpixel(xc-x,yc-y);
+                    setpixel(xc+y,yc+x);
+                    setpixel(xc-y,yc+x);
+                    setpixel(xc+y,yc-x);
+                    setpixel(xc-y,yc-x);
+        }
+
+        void BresenhamCircle()
+        {
+            int r = sqrt(abs(xc-xr)*abs(xc-xr) + abs(yc-yr)*abs(yc-yr));
+
+            int x=0; int y = r;
+            int d=3-2*r;
+
+            drawCircle(xc,yc,x,y);
+            while(y>=x)
+            {
+                x++;
+
+                if(d>0)
+                {
+                    y--;
+                    d=d+4*(x-y)+10;
+                }
+                else
+                {
+                    d=d+4*x+6;
+                }
+                drawCircle(xc,yc,x,y);
+            }
+        }
+
+};
+
+Circle obj;
+
+void keyboard(unsigned char k, int x, int y)
+{
+    if(k==27)
+    {
+        exit(0);
+    }
+}
+
+void mouse(int button , int state, int x, int y)
+{
+    if(state == GLUT_DOWN)
+    {
+        if(button == GLUT_LEFT_BUTTON)
+        {
+            xc = x-350;
+            yc= 350-y;
+            glPointSize(3.0);
+            setpixel(xc,yc);
+        }
+        else if(button == GLUT_RIGHT_BUTTON)
+        {
+            xr = x-350;
+            yr = 350-y;
+            glPointSize(3.0);
+            setpixel(xr,yr);
+        }
+    }
+}
+
+void menu(int item)
+{
+    if(item == 1)
+    {
+        obj.BresenhamCircle();
+    }
+    else
+    {
+        exit(0);
+    }
+}
+
+int main( int argc, char **argv )
+{
+    glutInit(&argc, argv);
+    glutInitWindowSize(w,h);
+    glutInitWindowPosition(100,100);
+    glutCreateWindow("Circle");
+    init();
+    glutDisplayFunc(choice);
+    glutMouseFunc(mouse);
+    glutKeyboardFunc(keyboard);
+    glutCreateMenu(menu);
+    glutAddMenuEntry("Circle",1);
+    glutAddMenuEntry("Exit",2);
+    glutAttachMenu(GLUT_MIDDLE_BUTTON);
+    glutMainLoop();
+    return 0;
+}
